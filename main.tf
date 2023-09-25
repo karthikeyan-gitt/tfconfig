@@ -13,7 +13,7 @@ resource "aws_instance" "server" {
 
 resource "aws_key_pair" "serverkey" {
    key_name = "serverkey"
-   public_key = file("/home/karthi/Downloads/serverkey.pub")
+   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFr2P/DeVyECdIQMpyOMNCEIH4zsVYsP4JVA4WwLXT9kgBkQHnSRENGSlCJbdfKNvwfTHGuHcYTnVCAItqy8T+1uWB0cH/9l0ZfRycHi8zZVplQBoRJqpVVIA8j0j2KDiOhV4aShc/Khnr9tD6/oi831gEPv+b5Xi4nBcEujXa/Jn8eCOXThVMy7QaEIY4TLsrkf+f6bq0jGjr8ikW0P99xFogr1COwSInHi1Z1Ki5uzZtWq147hsSu899OzdI3Id0P8E5fFiedhzAa9NJ6iqs3K0bRkbj3OhFk9WLng490GcdJRpqxixO83CHNS+M15YNoNstcDNzE0im6gCTpsOL karthi@karthik-5977"
 }
 
 
