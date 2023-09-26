@@ -86,7 +86,6 @@ resource "aws_security_group" "sonar_sg" {
 
 locals {
   outbound = {
-    egress {
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
@@ -94,5 +93,4 @@ locals {
       ipv6_cidr_blocks = ["::/0"]
       }
   }
-}
 ##########################################################
