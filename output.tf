@@ -5,7 +5,7 @@ output "jenkins" {
 
 
 output "tomcat" {
-    value = aws_instance.server["tomcat"].public_ip
+    value = aws_instance.tomcat.public_ip
 }
 
 output "sonar" {
@@ -14,5 +14,5 @@ output "sonar" {
 
 
 output "nexus" {
-   value = aws_instance.server["nexus"].public_ip
+   value = aws_instance.nexus.public_ip
 }
