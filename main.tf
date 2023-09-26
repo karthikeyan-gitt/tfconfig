@@ -81,20 +81,117 @@ resource "aws_security_group" "sonar_sg" {
      cidr_blocks = ["0.0.0.0/0"]
 }
 }
-  egress = local.outbound
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
 }
-
-
-locals {
-  outbound = tolist([
-    {
-      from_port        = 0
-      to_port          = 0
-      protocol         = "-1"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-  ])
-}
-
 ##########################################################
+########## Installation of nexus artifact ##########
+
+resource "aws_instance" "nexus" {
+  ami = var.ami
+  instance_type = var.instance_type
+  tags = {
+    "Name" = "Nexus"
+  }
+  key_name              = aws_key_pair.serverkey.id
+  vpc_security_group_ids = [aws_security_group.nexus_sg.id]
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum install java-1.8.0 -y
+    sudo cd /opt
+    sudo wget https://sonatype-download.global.ssl.fastly.net/nexus/3/nexus-3.0.2-02-unix.tar.gz
+    sudo tar -zxvf nexus-3.0.2-02-unix.tar.gz
+    sudo mv /opt/nexus-3.0.2-02 /opt/nexus
+    sudo adduser nexus
+    echo "nexus ALL=(ALL) NOPASSWD: ALL" | sudo tee --append /etc/sudoers
+    sudo adduser nexus
+    sudo cp /dev/null /opt/nexus/bin/nexus.rc
+    echo 'run_as_user="nexus"' | sudo tee --append /opt/nexus/bin/nexus.rc
+    sudo su - nexus
+    service nexus start
+  EOF
+}
+resource "aws_security_group" "nexus_sg" {
+  name = "nexus_sg"
+  dynamic "ingress" {
+    for_each = var.nexusport
+    content {
+     from_port = ingress.value
+     to_port = ingress.value
+     protocol = "tcp"
+     cidr_blocks = ["0.0.0.0/0"]
+}
+}
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+}
+##################################################################
+########### Installation of Tomcat ###########################
+resource "aws_instance" "tomcat" {
+  ami = var.ami
+  instance_type = var.instance_type
+  tags = {
+    "Name" = "Tomcat"
+  }
+  key_name              = aws_key_pair.serverkey.id
+  vpc_security_group_ids = [aws_security_group.tomcat_sg.id]
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum install java-1.8*
+    sudo su -
+    cd /opt
+    wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.tar.gz
+    tar -xzvf apache-tomcat-9.0.80.tar.gz 
+    chmod +x apache-tomcat-9.0.80/bin/startup.sh
+    chmod +x apache-tomcat-9.0.80/bin/shutdown.sh
+    ln -s /opt/apache-tomcat-9.0.80/bin/startup.sh /usr/local/bin/tomcatup
+    ln -s /opt/apache-tomcat-9.0.80/bin/shutdown.sh /usr/local/bin/tomcatdown
+    cd apache-tomcat-9.0.80/
+    sed -i "/<Valve/{N; d;}" ./webapps/docs/META-INF/context.xml
+    sed -i "/<Valve/{N; d;}" ./webapps/host-manager/META-INF/context.xml
+    sed -i "/<Valve/{N; d;}" ./webapps/manager/META-INF/context.xml
+    sed -i -e '$i\
+    <role rolename="manager-gui"/>\
+    <role rolename="manager-script"/>\
+    <role rolename="manager-jmx"/>\
+    <role rolename="manager-status"/>\
+    <user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>\
+    <user username="deployer" password="deployer" roles="manager-script"/>\
+    <user username="tomcat" password="s3cret" roles="manager-gui"/>' tomcat-users.xml
+    tomcatdown
+    tomcatup
+  EOF
+}
+resource "aws_security_group" "tomcat_sg" {
+  name = "tomcat_sg"
+  dynamic "ingress" {
+    for_each = var.tomcatport
+    content {
+     from_port = ingress.value
+     to_port = ingress.value
+     protocol = "tcp"
+     cidr_blocks = ["0.0.0.0/0"]
+}
+}
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+}
+################################################################################
