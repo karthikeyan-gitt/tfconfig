@@ -10,7 +10,7 @@ output "tomcat" {
 }
 */
 output "sonar" {
-    value = aws_instance.server["sonar"].public_ip
+    value = aws_instance.sonar.public_ip
 }
 
 /*

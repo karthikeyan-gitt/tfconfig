@@ -73,7 +73,7 @@ resource "aws_instance" "sonar" {
 resource "aws_security_group" "sonar_sg" {
   name = "sonar_sg"
   dynamic "ingress" {
-    for_each = var.sonarports
+    for_each = var.sonarport
     content {
      from_port = ingress.value
      to_port = ingress.value
@@ -84,15 +84,17 @@ resource "aws_security_group" "sonar_sg" {
   egress = local.outbound
 }
 
+
 locals {
-  outbound = [ 
+  outbound = [
     {
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
       cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = ["::/0"]
-    },
-]
+    }
+  ]
 }
+
 ##########################################################
