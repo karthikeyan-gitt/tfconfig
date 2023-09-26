@@ -1,22 +1,24 @@
 resource "aws_instance" "jenkins" {
-    ami = var.ami
-    instance_type = var.instance_type
-    tags = {
-      "Name" = "Jenkins"
+  ami           = var.ami
+  instance_type = var.instance_type
+  tags = {
+    "Name" = "Jenkins"
+  }
+  key_name              = aws_key_pair.serverkey.id
+  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    sudo yum upgrade -y
+    sudo dnf install java-11-amazon-corretto -y
+    sudo yum install jenkins -y
+    sudo systemctl enable jenkins
+    sudo systemctl start jenkins
+  EOF
 }
-    key_name = aws_key_pair.serverkey.id
-    vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-    user_data = <<-EOF
-                 #!/bin/bash
-                 sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-		 sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-		 sudo yum upgrade -y
-		 sudo dnf install java-11-amazon-corretto -y
-		 sudo yum install jenkins -y
-		 sudo systemctl enable jenkins
-		 sudo systemctl start jenkins
-EOF
-}
+
+
 
 resource "aws_key_pair" "serverkey" {
    key_name = "serverkey"
