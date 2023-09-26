@@ -1,4 +1,3 @@
-/*
 ############## Installation of Jenkins#######################
 resource "aws_instance" "jenkins" {
   ami           = var.ami
@@ -196,4 +195,3 @@ resource "aws_security_group" "tomcat_sg" {
 
 }
 ################################################################################
-*/
