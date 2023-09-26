@@ -6,6 +6,10 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
+variable "sonartype" {
+  default = "t2.medium"
+}
+
 variable "jenkinsports" {
    default = [ 22,8080 ]
 }
