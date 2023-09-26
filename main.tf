@@ -86,7 +86,7 @@ resource "aws_security_group" "sonar_sg" {
 
 
 locals {
-  outbound = [
+  outbound = tolist([
     {
       from_port        = 0
       to_port          = 0
@@ -94,7 +94,7 @@ locals {
       cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = ["::/0"]
     }
-  ]
+  ])
 }
 
 ##########################################################
