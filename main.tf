@@ -59,14 +59,15 @@ resource "aws_instance" "sonar" {
   vpc_security_group_ids = [aws_security_group.sonar_sg.id]
   user_data = <<-EOF
     #!/bin/bash
-    sudo yum install java-1.8.0 -y
+    sudo yum install java-1.8.0*  -y
     sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.6.zip
     sudo unzip sonarqube-7.6.zip -d /opt/sonar76
     sudo groupadd sonar
     sudo useradd -c "Sonar System User" -d /opt/sonar76 -g sonar -s /bin/bash sonar
     sudo chown -R sonar:sonar /opt/sonar76
-    sudo su - sonar
-    ./opt/sonar76/sonarqube-7.6/bin/linux-x86-64/sonar.sh start
+    cd /opt/sonar76/sonarqube-7.6/bin/linux-x86-64/
+    sudo su sonar
+    sh sonar.sh start
   EOF
 }
 resource "aws_security_group" "sonar_sg" {
