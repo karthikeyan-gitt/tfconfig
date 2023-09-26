@@ -1,3 +1,4 @@
+/*
 output "jenkins" {
    value = aws_instance.jenkins.public_ip
 #  value = [ for instance in aws_instance.server: instance.public_ip ]
@@ -16,3 +17,4 @@ output "sonar" {
 output "nexus" {
    value = aws_instance.nexus.public_ip
 }
+*/
