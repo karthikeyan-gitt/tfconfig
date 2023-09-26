@@ -1,15 +1,22 @@
-resource "aws_instance" "server" {
+resource "aws_instance" "jenkins" {
     ami = var.ami
     instance_type = var.instance_type
     tags = {
-      "Name" = each.value
+      "Name" = "Jenkins"
 }
-    for_each = var.tag
     key_name = aws_key_pair.serverkey.id
-    vpc_security_group_ids = [aws_security_group.sg_incoming.id]
+    vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+    user_data = <<-EOF
+              #! /bin/bash
+                sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+		sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+		sudo yum upgrade -y
+		sudo dnf install java-11-amazon-corretto -y
+		sudo yum install jenkins -y
+		sudo systemctl enable jenkins
+		sudo systemctl start jenkins
+		EOF
 }
-
-
 
 resource "aws_key_pair" "serverkey" {
    key_name = "serverkey"
@@ -17,10 +24,10 @@ resource "aws_key_pair" "serverkey" {
 }
 
 
-resource "aws_security_group" "sg_incoming" {
-  name = "sg_incoming"
+resource "aws_security_group" "jenkins_sg" {
+  name = "jenkins_sg"
   dynamic "ingress" {
-    for_each = var.ingress-ports
+    for_each = var.jenkinsports
     content {
      from_port = ingress.value
      to_port = ingress.value
@@ -37,5 +44,3 @@ resource "aws_security_group" "sg_incoming" {
   }
 
 }
-
-

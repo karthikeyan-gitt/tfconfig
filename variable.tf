@@ -6,16 +6,18 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
-variable "tag" {
-  type = set(string)
-  default = [
-     "jenkins",
-     "sonar",
-     "nexus",
-     "tomcat"
-]
+variable "jenkinsports" {
+   default = [ 22,8080 ]
 }
 
-variable "ingress-ports" {
-   default = [ 22,80,443,8080,9000,8081 ]
+variable "sonarport" {
+   default = [ 22,9000 ]
+}
+
+variable "nexusport" {
+   default = [ 22,8081 ]
+}
+
+variable "tomcatport" {
+   default = [ 80,443,22,8080 ]
 }
