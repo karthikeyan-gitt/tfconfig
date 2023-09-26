@@ -65,9 +65,7 @@ resource "aws_instance" "sonar" {
     sudo groupadd sonar
     sudo useradd -c "Sonar System User" -d /opt/sonar76 -g sonar -s /bin/bash sonar
     sudo chown -R sonar:sonar /opt/sonar76
-    sudo cd /opt/sonar76/sonarqube-7.6/bin/linux-x86-64/
-    sudo su sonar
-    ./sonar.sh start
+    ./opt/sonar76/sonarqube-7.6/bin/linux-x86-64/sonar.sh start
   EOF
 }
 resource "aws_security_group" "sonar_sg" {
@@ -104,7 +102,7 @@ resource "aws_instance" "nexus" {
   user_data = <<-EOF
     #!/bin/bash
     sudo yum install java-1.8.0 -y
-    sudo cd /opt
+    cd /opt
     sudo wget https://sonatype-download.global.ssl.fastly.net/nexus/3/nexus-3.0.2-02-unix.tar.gz
     sudo tar -zxvf nexus-3.0.2-02-unix.tar.gz
     sudo mv /opt/nexus-3.0.2-02 /opt/nexus
@@ -169,7 +167,7 @@ resource "aws_instance" "tomcat" {
     <role rolename="manager-status"/>\
     <user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>\
     <user username="deployer" password="deployer" roles="manager-script"/>\
-    <user username="tomcat" password="s3cret" roles="manager-gui"/>' tomcat-users.xml
+    <user username="tomcat" password="s3cret" roles="manager-gui"/>' /opt/apache-tomcat-9.0.80/conf/tomcat-users.xml
     tomcatdown
     tomcatup
   EOF
